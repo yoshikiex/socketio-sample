@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html lang="ja-JP">
+<head>
+  <meta charset="UTF-8">
+
+</head>
+
+<body>
+<div>
+  name:<input id="name" type="text" /><br/>
+  message:<input id="msg" type="text" /><br />
+
+  <input type="button" id="send" value="いけー"/>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script>
+  var socket = io.connect('http://localhost:8080');
+
+  socket.on('onlineNum', function(data) {
+    var num = data.onlineNum;
+    var onlineElm = $("#online").text(num);
+  });
+
+  socket.on('sendBack', function (data) {
+    console.log(data);
+//    var resData = JSON.stringify(data);
+//    $("body").append(resData);
+    var name = data.name;
+    var msg = data.message;
+    var liElm = $("<li></li>");
+    liElm.text("@" + name + " " + msg);
+    $("#chat_msg").prepend(liElm);
+  });
+
+(function($){
+  $(function(){
+    $("#send").click(function() {
+      var name = $('#name').val();
+      var msg = $('#msg').val();
+      socket.emit("sendMsg", {"name": name, "message": msg});
+      $("#msg").val("");
+    })
+  })
+})(jQuery);
+
+</script>
+
+<div><span id="online"></span>人がオンライン中です</div>
+
+<div>
+  <ul id="chat_msg">
+    <li></li>
+  </ul>
+</div>
+
+</body>
+</html>
